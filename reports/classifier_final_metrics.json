@@ -1,0 +1,23 @@
+{
+  "val": {
+    "accuracy": 0.8076398362892224,
+    "f1_macro": 0.6559377321608632,
+    "kappa_quadratic": 0.8850327002046798
+  },
+  "test_idrid": {
+    "accuracy": 0.21359223300970873,
+    "f1_macro": 0.1560243902439024,
+    "kappa_quadratic": 0.14624333494910324
+  },
+  "best_epoch": 19,
+  "test_idrid_finetuned": {
+    "accuracy": 0.21359223300970873,
+    "f1_macro": 0.157788692303399,
+    "kappa_quadratic": 0.15316304374344347
+  },
+  "val_after_finetune": {
+    "accuracy": 0.7871759890859482,
+    "f1_macro": 0.634187506218184,
+    "kappa_quadratic": 0.8669223524605976
+  }
+}

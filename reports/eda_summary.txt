@@ -1,0 +1,33 @@
+
+===================================================
+VERI SETI OZET ISTATISTIKLERI (raporda kullan)
+===================================================
+
+A) APTOS 2019 Blindness Detection
+   - Toplam goruntu: 3,662
+   - Kaynak: Asia Pacific Tele-Ophthalmology Society
+   - Cozunurluk: degisken (yuzlerce-binlerce px)
+   - Sinif dagilimi:
+       0 (No DR):         1,805 (%49.3)
+       1 (Mild):          370 (%10.1)
+       2 (Moderate):      999 (%27.3)
+       3 (Severe):        193 (%5.3)
+       4 (Proliferative): 295 (%8.1)
+
+B) IDRiD Disease Grading
+   - Train: 413 | Test: 103
+   - Kaynak: Indian Institute of Technology
+   - Cozunurluk: 4288 x 2848 (sabit)
+   - Train sinif dagilimi:
+       0: 134 | 1: 20 | 2: 136 | 3: 74 | 4: 49
+
+C) IDRiD Segmentation
+   - Train: 54 | Test: 27 (Toplam 81)
+   - Cozunurluk: 4288 x 2848
+   - Lezyon tipi: 4 (MA, HE, EX, SE) + Optic Disc
+
+===================================================
+TOPLAM:
+   Siniflandirma: 4,075 train + 103 external test
+   Segmentasyon:  81 (4 lezyon pixel-level maskeli)
+===================================================

@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Sanal ortam
+venv/
+env/
+.venv/
+
+# Veri ve modeller (büyük dosyalar)
+data/
+datasets/
+cache/
+cache_backup.tar
+*.tar
+models/*.pth
+models/*.bin
+checkpoints/*.pth
+checkpoints/*.pt
+*.ckpt
+*.safetensors
+
+# Cached CSV (lokal, yeniden üretilebilir)
+*_cached.csv
+
+# Word geçici dosyaları
+~$*.docx
+
+# Sonuçlar (rapor görselleri hariç tutulabilir)
+results/
+!results/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Gradio
+flagged/
+gradio_cached_examples/
+
+# Kaggle credentials (asla GitHub'a yuklenmesin)
+kaggle.json
+
+# Drive yedek klasoru (1+ GB)
+drive_files/
+
+# Lokal figures klasoru (rapor icinde reports/figures/ var, tekrar gerek yok)
+/figures/
