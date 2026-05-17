@@ -1,151 +1,304 @@
+<div align="center">
+
 # Diyabetik Retinopati Analizi için Derin Öğrenme Tabanlı Çoklu Görev Sistemi
 
-**EEM0458 Görüntü İşleme Projesi - Bursa Teknik Üniversitesi - 2025/2026 Bahar Dönemi**
+**Fundus görüntülerinden DR şiddet sınıflandırması, lezyon segmentasyonu ve karar açıklanabilirliği sunan uçtan uca bir derin öğrenme sistemi**
 
-Bu proje fundus (göz dibi) görüntülerinden diyabetik retinopati (DR) şiddet sınıflandırması ve lezyon segmentasyonu yapan iki aşamalı bir derin öğrenme sistemidir.
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.5+-EE4C2C.svg)](https://pytorch.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Kappa](https://img.shields.io/badge/Quadratic_Kappa-0.885-brightgreen.svg)](#sonuçlar)
+[![BTU](https://img.shields.io/badge/Bursa_Teknik_Üniversitesi-EEM0458-darkred.svg)](https://www.btu.edu.tr)
+
+</div>
 
 ---
 
-## Özet
+## Genel Bakış
 
-Diyabetik retinopati, dünya genelinde çalışma yaşındaki yetişkinlerde görme kaybının başlıca nedenlerinden biridir. Erken teşhis edildiğinde tedavi şansı yüksek olduğundan, otomatik tarama sistemleri klinik uygulamada önemli bir yere sahiptir.
+Diyabetik retinopati (DR), dünya genelinde **537 milyon** diyabet hastasının yaklaşık üçte birini etkileyen ve çalışma yaşındaki yetişkinler arasında **görme kaybının en yaygın nedenlerinden biri** olan mikrovasküler bir komplikasyondur. Erken teşhis edilirse tedavi şansı yüksek olmasına rağmen, oftalmolog yetersizliği ve manuel inceleme süreçleri tarama programlarının önündeki en büyük engellerdir.
 
-Bu projede şu üç ana modül geliştirilmiştir:
-1. **5-sınıflı DR şiddet sınıflandırması** (No DR, Mild, Moderate, Severe, PDR) — EfficientNet-B3
-2. **4 lezyon tipi piksel-düzeyinde segmentasyonu** (MA, HE, EX, SE) — U-Net + EfficientNet-B0 encoder
-3. **Grad-CAM++ ile karar açıklanabilirliği**
+Bu projede bu probleme yönelik üç eksenli bir çözüm geliştirilmiştir:
 
-## Sonuçlar
-
-### Sınıflandırma (APTOS 2019 + IDRiD)
-| Metrik | APTOS Val | IDRiD External Test |
+| Modül | Mimari | Görev |
 |---|---|---|
-| Accuracy | 0.808 | 0.214 |
-| F1-Macro | 0.656 | 0.156 |
-| **Kappa (quad.)** | **0.885** | 0.146 |
+| **Sınıflandırıcı** | EfficientNet-B3 | 5-sınıflı DR şiddet tanılaması (No DR, Mild, Moderate, Severe, PDR) |
+| **Segmenter** | U-Net + EfficientNet-B0 encoder | 4 lezyon tipinin piksel düzeyinde tespiti (MA, HE, EX, SE) |
+| **Açıklayıcı** | Grad-CAM++ | Modelin karar verdiği bölgelerin ısı haritası ile görselleştirilmesi |
 
-Internal validation sonucu APTOS 2019 Kaggle yarışmasında üst %10'a denk gelen performansı temsil eder. External test seti sonuçları domain shift problemini açıkça ortaya koymaktadır.
+---
 
-### Segmentasyon (IDRiD)
-| Lezyon | Dice | IoU |
+## Öne Çıkan Sonuçlar
+
+<table>
+<tr>
+<td width="50%">
+
+### Sınıflandırma Başarısı
+**Quadratic Kappa: 0.885**
+
+APTOS 2019 Kaggle yarışmasında üst %10'a denk gelen performans.
+
+</td>
+<td width="50%">
+
+### Segmentasyon Başarısı
+**Ortalama Dice: 0.486** (MA hariç)
+
+Sert eksuda: 0.59 · Kanama: 0.46 · Yumuşak eksuda: 0.40
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### Açıklanabilirlik
+Grad-CAM++ ısı haritaları modelin **gerçek lezyon bölgelerine** baktığını doğruluyor.
+
+</td>
+<td width="50%">
+
+### Dürüst Sınırlılık Raporu
+Domain shift ve mikroanevrizma çözünürlük problemleri açıkça raporlanmıştır.
+
+</td>
+</tr>
+</table>
+
+---
+
+## Görsel Sonuçlar
+
+### Grad-CAM Açıklanabilirlik
+Model her sınıf için karar verirken hangi bölgelere baktığını gösterir. Lezyon içeren sınıflarda ısı haritası gerçek lezyon konumlarında yoğunlaşır.
+
+<div align="center">
+<img src="reports/figures/fig_gradcam.png" alt="Grad-CAM ısı haritaları" width="700"/>
+</div>
+
+### Lezyon Segmentasyonu
+Ground truth maskeler ile model tahminlerinin karşılaştırması. Sert eksudalar (sarı), kanamalar (turuncu) ve yumuşak eksudalar (mavi) yüksek doğrulukla segmente edilmektedir.
+
+<div align="center">
+<img src="reports/figures/fig_seg_predictions.png" alt="Segmentasyon sonuçları" width="700"/>
+</div>
+
+### Ön İşleme Pipeline
+Ham fundus görüntüsünden modele uygun girdiye dönüşüm: siyah arka plan kırpılır, CLAHE ile kontrast artırılır, kare formatta yeniden boyutlandırılır.
+
+<div align="center">
+<img src="reports/figures/fig02_preprocessing_pipeline.png" alt="Preprocessing pipeline" width="700"/>
+</div>
+
+---
+
+## Sonuç Tabloları
+
+### Sınıflandırma Performansı
+
+| Veri Seti | Accuracy | F1-Macro | Quadratic Kappa |
+|---|:---:|:---:|:---:|
+| APTOS Validasyon | 0.808 | 0.656 | **0.885** |
+| IDRiD External Test | 0.214 | 0.156 | 0.146 |
+
+> External test setindeki dramatik düşüş, farklı kamera ve klinik koşullarından kaynaklanan **domain shift** probleminin somut göstergesidir.
+
+### Segmentasyon Performansı (IDRiD)
+
+| Lezyon | Dice | IoU | Eğitim Örneği |
+|---|:---:|:---:|:---:|
+| Sert Eksuda (EX) | 0.593 | 0.422 | 54 |
+| Kanama (HE) | 0.463 | 0.301 | 53 |
+| Yumuşak Eksuda (SE) | 0.402 | 0.252 | 26 |
+| Mikroanevrizma (MA) | 0.000 | 0.000 | 54 |
+| **Ortalama (MA hariç)** | **0.486** | **0.325** | — |
+
+> MA başarısızlığı 512×512 çözünürlüğe küçültme sırasında lezyonların piksel altına düşmesinden kaynaklanır. Sınırlılıklar bölümünde detaylı tartışılmıştır.
+
+---
+
+## Hızlı Başlangıç
+
+### 1. Klonla ve kur
+
+```bash
+git clone https://github.com/cantekinn/DR-Analysis-System.git
+cd DR-Analysis-System
+pip install -r requirements.txt
+```
+
+### 2. Veri setlerini indir
+
+| Veri Seti | Kaynak | Boyut |
 |---|---|---|
-| Sert Eksuda (EX) | 0.593 | 0.422 |
-| Kanama (HE) | 0.463 | 0.301 |
-| Yumuşak Eksuda (SE) | 0.402 | 0.252 |
-| Mikroanevrizma (MA) | 0.000 | 0.000 |
-| **Ortalama (MA hariç)** | **0.486** | **0.325** |
+| APTOS 2019 | [Kaggle](https://www.kaggle.com/competitions/aptos2019-blindness-detection) | 3.662 görüntü |
+| IDRiD | [Kaggle](https://www.kaggle.com/datasets/aaryapatel98/indian-diabetic-retinopathy-image-dataset) | 597 görüntü |
 
-Mikroanevrizma segmentasyonunun başarısızlığı 512×512 çözünürlükte küçük lezyonların yok olmasından kaynaklanmaktadır. Bu sınırlama rapor içinde detaylı şekilde tartışılmıştır.
+İndirilen veri setlerini `datasets/APTOS/` ve `datasets/IDRiD/` altına yerleştir.
+
+### 3. Eğitilmiş modelleri indir
+
+[**Releases**](https://github.com/cantekinn/DR-Analysis-System/releases) sayfasından `.pth` dosyalarını indir ve `checkpoints/` klasörüne yerleştir.
+
+### 4. Notebook'ları sırayla çalıştır
+
+```
+01_eda.ipynb           Keşifsel veri analizi
+02_preprocessing.ipynb Ön işleme ve veri bölme
+03_train_classifier   EfficientNet-B3 eğitimi (~21 dk T4)
+04_train_segmenter    U-Net eğitimi (~63 dk T4)
+05_gradcam            Açıklanabilirlik analizi
+```
+
+---
+
+## Mimari
+
+```
+Fundus Görüntüsü (Variable Size, RGB)
+        │
+        ▼
+┌────────────────────────────────┐
+│   ÖN İŞLEME PIPELINE           │
+│   Fundus Crop → CLAHE          │
+│   → Square Pad → Resize        │
+└────────────────────────────────┘
+        │
+        ├──────────────┐
+        ▼              ▼
+┌──────────────┐  ┌──────────────┐
+│ Sınıflandırıcı│  │  Segmenter   │
+│ EfficientNet  │  │  U-Net +     │
+│      B3       │  │  EffNet-B0   │
+│   384×384     │  │  512×512     │
+└──────┬───────┘  └──────┬───────┘
+       │                 │
+       ▼                 ▼
+   5-sınıf prob.    4-kanal maske
+       │           (MA, HE, EX, SE)
+       ▼
+   Grad-CAM++
+   Isı haritası
+```
+
+---
+
+## Teknik Detaylar
+
+<details>
+<summary><b>Eğitim Hiperparametreleri</b> (genişlet)</summary>
+
+| Parametre | Sınıflandırma | Segmentasyon |
+|---|:---:|:---:|
+| Model | EfficientNet-B3 | U-Net + EfficientNet-B0 |
+| Parametre Sayısı | 10.7M | 6.25M |
+| Girdi Boyutu | 384×384 | 512×512 |
+| Batch Size | 32 | 4 |
+| Epoch Sayısı | 20 | 60 |
+| Optimizer | AdamW | AdamW |
+| Başlangıç LR | 3e-4 | 1e-4 |
+| Weight Decay | 1e-4 | 1e-5 |
+| Scheduler | Warmup (2 ep) + Cosine | Warmup (3 ep) + Cosine |
+| Kayıp Fonksiyonu | Weighted CE + Label Smooth | BCE + Dice (0.5 / 0.5) |
+| Mixed Precision | Aktif | Aktif |
+| Eğitim Süresi | 21 dk (Tesla T4) | 63 dk (Tesla T4) |
+
+</details>
+
+<details>
+<summary><b>Ön İşleme Pipeline Detayları</b> (genişlet)</summary>
+
+1. **Fundus Crop** — Ben Graham'ın 2015 Kaggle DR yarışmasında önerdiği teknik. Gri tonlamada piksel yoğunluğu > 7 olan bölge tespit edilip kırpılır.
+2. **CLAHE** — LAB renk uzayında L kanalına `clipLimit=2.0`, `tileGridSize=(8,8)` parametreleriyle uygulanır.
+3. **Zero-Padded Square Resize** — Kare formatta 384×384 (sınıflandırma) veya 512×512 (segmentasyon) hedeflenir.
+4. **ImageNet Normalize** — `mean=[0.485, 0.456, 0.406]`, `std=[0.229, 0.224, 0.225]`.
+
+</details>
+
+<details>
+<summary><b>Veri Artırma (Augmentation)</b> (genişlet)</summary>
+
+Albumentations kütüphanesi kullanılarak şu augmentation'lar uygulanmıştır:
+
+- Horizontal Flip (p=0.5)
+- Vertical Flip (p=0.3)
+- Rotate ±180° (p=0.7)
+- ShiftScaleRotate (p=0.5)
+- RandomBrightnessContrast (p=0.5)
+- HueSaturationValue (p=0.4)
+- GaussianBlur (p=0.2)
+
+</details>
+
+---
 
 ## Proje Yapısı
 
 ```
-DR_Project/
-├── notebooks/
-│   ├── 01_eda.ipynb                    # Keşifsel veri analizi
-│   ├── 02_preprocessing.ipynb          # Ön işleme + train/val split
-│   ├── 03_train_classifier.ipynb       # EfficientNet-B3 eğitimi + fine-tune
-│   ├── 04_train_segmenter.ipynb        # U-Net eğitimi
-│   ├── 05_gradcam.ipynb                # Grad-CAM++ analizi
-│   └── 06_demo.ipynb                   # Gradio web demo (opsiyonel)
-├── src/
-│   ├── preprocessing.py                # Fundus crop + CLAHE + resize
-│   ├── dataset.py                      # PyTorch Dataset + augmentation
-│   ├── seg_dataset.py                  # Segmentasyon Dataset
-│   ├── models.py                       # timm tabanlı classifier
-│   ├── seg_models.py                   # smp tabanlı U-Net
-│   ├── train_utils.py                  # Eğitim/evaluation helpers
-│   └── seg_train_utils.py
+DR-Analysis-System/
+│
+├── notebooks/              7 adet Jupyter Notebook (EDA → Eğitim → Analiz)
+├── src/                    7 modüler Python dosyası
 ├── reports/
-│   ├── figures/                        # 15+ rapor figürü (PNG)
-│   ├── classifier_final_metrics.json
-│   ├── classifier_history.json
-│   ├── segmenter_final_metrics.json
-│   └── segmenter_history.json
-├── generate_report.py                  # Word rapor üreticisi
-├── Rapor.docx                          # Final rapor (Türkçe)
+│   ├── figures/            15 rapor figürü (eğitim eğrileri, CM, vb.)
+│   └── *.json              Metrik geçmişleri
+├── splits/                 Train/Val/Test bölünmüş CSV'ler
+├── Rapor.docx              Final akademik rapor (Türkçe)
+├── generate_report.py      Word rapor üreticisi
+├── requirements.txt
 └── README.md
 ```
 
-## Kurulum ve Kullanım
+---
 
-### Gereksinimler
-- Python 3.10+
-- CUDA destekli GPU (T4, A100 veya benzeri)
-- 16 GB+ VRAM önerilir
+## Sınırlılıklar (Dürüst Rapor)
 
-### Kütüphaneler
-```bash
-pip install torch torchvision timm segmentation-models-pytorch
-pip install albumentations opencv-python Pillow pandas numpy
-pip install scikit-learn matplotlib tqdm
-pip install grad-cam python-docx
-```
+Bu çalışma akademik dürüstlük ilkesiyle sınırlılıklarını açıkça raporlamaktadır:
 
-### Veri Setleri
-- [APTOS 2019 Blindness Detection](https://www.kaggle.com/competitions/aptos2019-blindness-detection) — 3.662 fundus görüntüsü
-- [IDRiD Dataset](https://www.kaggle.com/datasets/aaryapatel98/indian-diabetic-retinopathy-image-dataset) — 81 segmentasyon + 516 sınıflandırma
+### 1. Domain Shift
+APTOS-IDRiD arasında Kappa **0.885'ten 0.146'ya** düşüş gözlemlendi. Farklı kamera (Topcon vs Kowa), aydınlatma ve görüntüleme protokolleri arasındaki fark, modelin gerçek klinik kullanım öncesinde **çoklu merkez verileri ile valide edilmesi gerektiğini** açıkça göstermektedir.
 
-Veri setlerini indirip `datasets/` klasörüne yerleştirin.
+### 2. Mikroanevrizma Çözünürlüğü
+4288×2848 piksellik orijinal görüntülerin 512×512'ye küçültülmesi mikroanevrizmaları (3-10 piksel) yok etmektedir. **Patch-tabanlı eğitim** (≥1024×1024) ve A100/A6000 sınıfı GPU gerekmektedir.
 
-### Notebook Çalıştırma Sırası
-1. `01_eda.ipynb` — veri keşfi
-2. `02_preprocessing.ipynb` — ön işleme + split
-3. `03_train_classifier.ipynb` — sınıflandırıcı eğitimi
-4. `04_train_segmenter.ipynb` — segmentasyon eğitimi
-5. `05_gradcam.ipynb` — açıklanabilirlik analizi
+### 3. Donanım Kısıtlamaları
+Google Colab T4 ücretsiz GPU (16 GB VRAM) ile geliştirildi. Profesyonel donanım maliyeti:
+- Bulut (A100): saat başına 2-5 USD, tam çevrim 60-150 USD
+- Lokal (RTX A6000): 4.500-5.500 USD
+- Lokal (A100): 10.000-15.000 USD
 
-## Teknik Detaylar
+Detaylı tartışma `Rapor.docx` Bölüm 5'te yer almaktadır.
 
-### Eğitim Hiperparametreleri
-| Parametre | Sınıflandırma | Segmentasyon |
-|---|---|---|
-| Model | EfficientNet-B3 | U-Net + EfficientNet-B0 |
-| Parametre | 10.7M | 6.25M |
-| Girdi Boyutu | 384×384 | 512×512 |
-| Batch Size | 32 | 4 |
-| Epoch | 20 | 60 |
-| Optimizer | AdamW | AdamW |
-| LR | 3e-4 | 1e-4 |
-| Scheduler | Cosine + Warmup | Cosine + Warmup |
-| Loss | Weighted CE + Label Smoothing | BCE + Dice |
-| Eğitim Süresi | ~21 dk (T4) | ~63 dk (T4) |
+---
 
-### Ön İşleme Pipeline
-1. **Fundus crop** — Ben Graham (Kaggle 2015) yöntemi
-2. **CLAHE** — LAB renk uzayında L kanalına (clipLimit=2.0)
-3. **Zero-padded square resize** — 384×384 veya 512×512
-4. **ImageNet normalize** — mean/std
+## Kaynaklar
 
-## Sınırlılıklar
+Rapor içinde 13 akademik referans (IEEE format) bulunmaktadır. Temel referanslar:
 
-Bu proje akademik bir lisans projesidir ve aşağıdaki sınırlılıkları açıkça raporlamaktadır:
+- Gulshan et al. (2016) — JAMA: Google DR detection çalışması
+- Porwal et al. (2018) — Data: IDRiD veri seti
+- Tan & Le (2019) — ICML: EfficientNet
+- Ronneberger et al. (2015) — MICCAI: U-Net
+- Selvaraju et al. (2017) — ICCV: Grad-CAM
 
-1. **Domain Shift**: APTOS-IDRiD arasında performans %50+ düşüş gösterdi. Klinik kullanım için domain adaptation teknikleri (adversarial training, MMD loss) gereklidir.
-2. **Mikroanevrizma Çözünürlüğü**: 4288×2848'den 512×512'ye küçültme MA lezyonlarını yok ediyor. Patch-tabanlı eğitim (1024×1024+) ve A100/A6000 sınıfı donanım gerektiriyor.
-3. **Donanım**: Google Colab T4 ile geliştirildi. Profesyonel donanım (saatlik 2-5 USD bulut veya 5-15K USD lokal) tam performans için gerekli.
-
-Detaylar `Rapor.docx` Bölüm 5'te tartışılmıştır.
-
-## Lisans
-
-MIT License — eğitim ve araştırma amaçlı serbest kullanım.
+---
 
 ## Yazar
 
 **Can Tekin**
-Bursa Teknik Üniversitesi - Elektrik Elektronik Mühendisliği
-[GitHub](https://github.com/cantekinn)
+Elektrik-Elektronik Mühendisliği, Bursa Teknik Üniversitesi
+[GitHub](https://github.com/cantekinn) · [LinkedIn](https://www.linkedin.com)
 
-## Referanslar
+## Lisans
 
-Rapor içinde 13 akademik kaynak (IEEE format) yer almaktadır. Ana referanslar:
-- Gulshan et al. (2016), JAMA — Google'ın DR detection çalışması
-- Porwal et al. (2018), Data — IDRiD dataset
-- Tan & Le (2019), ICML — EfficientNet
-- Ronneberger et al. (2015), MICCAI — U-Net
-- Selvaraju et al. (2017), ICCV — Grad-CAM
+[MIT License](LICENSE) — eğitim ve araştırma amaçlı serbest kullanım.
 
 ---
 
-*Bu sistem akademik bir prototiptir, klinik tanı için kullanılamaz.*
+<div align="center">
+
+**Bu sistem akademik bir prototiptir ve klinik tanı için kullanılamaz.**
+
+*Bursa Teknik Üniversitesi · Mühendislik ve Doğa Bilimleri Fakültesi · EEM0458 · 2025-2026 Bahar*
+
+</div>
